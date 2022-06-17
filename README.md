@@ -1,3 +1,3 @@
 run:
-pyinstaller -F -w -i app_icon.icon main.py
+pyinstaller -F -w -i icon_app.ico main.py
 to generate main.exe
