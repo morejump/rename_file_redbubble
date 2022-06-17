@@ -14,10 +14,12 @@ def handleSelectFolder():
 
 
 def handleRenameAllFiles():
+    print(cutToText.get())
     folder = labelSelectedPath.cget("text")
     for count, filename in enumerate(os.listdir(folder)):
         if filename.lower().endswith('.png'):
-            lastOccur = filename.rfind("T-Shirt")
+            lastOccur = filename.rfind(cutToText.get())
+            print(f"last occur: {lastOccur}")
             if lastOccur != -1:
                 print(f"last occur: {lastOccur}")
                 newFile = filename[:lastOccur].strip()
@@ -48,12 +50,17 @@ labelPath.grid(column=0, row=1)
 # Add a selected path label
 labelSelectedPath = Label(window, text="N/A", anchor="w")
 labelSelectedPath.grid(column=1, row=1)
+# Entry text
+labelCutToText = Label(window, text="Trim to keyword: ", anchor="w")
+labelCutToText.grid(column=0, row=2)
+
+cutToText = Entry(window)
+cutToText.grid(column=1, row=2)
 # Add a rename button
-# Add button select a folder
 btnRename = Button(window, text="Rename all files", command=handleRenameAllFiles)
-btnRename.grid(column=0, row=2)
+btnRename.grid(column=0, row=3)
 # Add label successfully
 labelSuccess = Label(window, text="", fg="green", font=("Arial", 10))
-labelSuccess.grid(column=0, row=3)
+labelSuccess.grid(column=0, row=4)
 
 window.mainloop()
