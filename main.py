@@ -1,9 +1,7 @@
-from os import listdir
-import pathlib
+import os
 from tkinter import *
 from tkinter import filedialog
-import tkinter
-import os
+from PIL import Image, ImageEnhance
 
 
 def handleSelectFolder():
@@ -13,30 +11,26 @@ def handleSelectFolder():
     return
 
 
-def handleRenameAllFiles():
-    print(cutToText.get())
+def enhanceImages():
     folder = labelSelectedPath.cget("text")
     for count, filename in enumerate(os.listdir(folder)):
         if filename.lower().endswith('.png'):
-            lastOccur = filename.rfind(cutToText.get())
-            print(f"last occur: {lastOccur}")
-            if lastOccur != -1:
-                print(f"last occur: {lastOccur}")
-                newFile = filename[:lastOccur].strip()
-                dst = f"{newFile}.png"
-                dst = f"{folder}/{dst}"
-                src = f"{folder}/{filename}"
-                try:
-                    os.rename(src, dst)
-                except:
-                    print("An exception occurred")
-                    pass
-    labelSuccess.configure(text="Successfully renamed all image files!")
+            try:
+                print(f"Handling {filename}...")
+                filePath = f"{folder}/{filename}"
+                image = Image.open(filePath)
+                coloredImage = ImageEnhance.Color(image)
+                coloredImage.enhance(2).save(filePath)
+                image.close()
+                print(f"Complete handling {filename}!")
+            except Exception as ex:
+                print(f"Ignoring handle {filename} cause by an exception: {ex}")
+    labelSuccess.configure(text="Bypass Redbuble AI successfully!")
     return
 
 
 window = Tk()
-window.title("Rename all image files in a specific folder")
+window.title("Redbubble Bypasser")
 window.geometry("400x100")
 # Add a intro label
 labelIntro = Label(window, text="Select the folder:")
@@ -50,17 +44,11 @@ labelPath.grid(column=0, row=1)
 # Add a selected path label
 labelSelectedPath = Label(window, text="N/A", anchor="w")
 labelSelectedPath.grid(column=1, row=1)
-# Entry text
-labelCutToText = Label(window, text="Trim to keyword: ", anchor="w")
-labelCutToText.grid(column=0, row=2)
-
-cutToText = Entry(window)
-cutToText.grid(column=1, row=2)
 # Add a rename button
-btnRename = Button(window, text="Rename all files", command=handleRenameAllFiles)
-btnRename.grid(column=0, row=3)
+btnRename = Button(window, text="Bypass", command=enhanceImages)
+btnRename.grid(column=0, row=2)
 # Add label successfully
-labelSuccess = Label(window, text="", fg="green", font=("Arial", 10))
-labelSuccess.grid(column=0, row=4)
+labelSuccess = Label(window, text="", font=("Arial", 10))
+labelSuccess.grid(column=0, row=3)
 
 window.mainloop()
