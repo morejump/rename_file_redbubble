@@ -18,10 +18,22 @@ def enhanceImage(folder, filename):
     try:
         print(f"Handling {filename}...")
         filePath = f"{folder}/{filename}"
+        #  Enhance color
         image = Image.open(filePath)
         coloredImage = ImageEnhance.Color(image)
         coloredImage.enhance(2).save(filePath)
         image.close()
+        # Enhance Sharpness
+        image = Image.open(filePath)
+        coloredImage = ImageEnhance.Sharpness(image)
+        coloredImage.enhance(2).save(filePath)
+        image.close()
+        # Enhance Brightness
+        image = Image.open(filePath)
+        coloredImage = ImageEnhance.Brightness(image)
+        coloredImage.enhance(1.1).save(filePath)
+        image.close()
+
         print(f"Complete handling {filename}!")
     except Exception as ex:
         print(f"Ignoring handle {filename} cause by an exception: {ex}")
@@ -48,7 +60,7 @@ def onClickBypass():
 
 
 window = Tk()
-window.title("Redbubble Bypasser")
+window.title("Redbubble Bypasser - v1.2")
 window.geometry("400x100")
 # Add a intro label
 labelIntro = Label(window, text="Select the folder:")
