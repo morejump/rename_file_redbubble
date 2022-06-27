@@ -55,7 +55,7 @@ def startRename():
                     print(sourcePath)
                     renameFile(sourcePath, cutToText.get())
 
-    labelSuccess.configure(text="Successfully renamed all image files!")
+    labelSuccess.configure(text="Successfully renamed all images files!")
     return
 
 
