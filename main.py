@@ -1,9 +1,8 @@
-from os import listdir
-import pathlib
+import os
+import uuid
+import threading
 from tkinter import *
 from tkinter import filedialog
-import tkinter
-import os
 
 
 def handleSelectFolder():
@@ -13,31 +12,61 @@ def handleSelectFolder():
     return
 
 
-def handleRenameAllFiles():
-    print(cutToText.get())
+def renameFile(sourcePath, cutText):
+    filename = sourcePath.split("/")[-1]
+    lastBackSlash = sourcePath.rfind("/")
+    folder = sourcePath[:lastBackSlash].strip()
+
+    lastOccur = filename.rfind(cutText)
+    print(f"last occur: {lastOccur}")
+    if lastOccur != -1:
+        print(f"last occur: {lastOccur}")
+        newFile = filename[:lastOccur].strip()
+        dst = f"{folder}/{newFile}.png"
+        try:
+            os.rename(sourcePath, dst)
+        except FileExistsError as ex:
+            uniqueId = str(uuid.uuid4()).split("-")[-1]
+            dst = f"{folder}/{newFile}_{uniqueId}.png"
+            os.rename(sourcePath, dst)
+        except Exception as ex:
+            print(f"An exception occurred: {ex}")
+            pass
+
+    return
+
+
+def startRename():
+    labelSuccess.configure(text="Processing...")
     folder = labelSelectedPath.cget("text")
-    for count, filename in enumerate(os.listdir(folder)):
-        if filename.lower().endswith('.png'):
-            lastOccur = filename.rfind(cutToText.get())
-            print(f"last occur: {lastOccur}")
-            if lastOccur != -1:
-                print(f"last occur: {lastOccur}")
-                newFile = filename[:lastOccur].strip()
-                dst = f"{newFile}.png"
-                dst = f"{folder}/{dst}"
-                src = f"{folder}/{filename}"
-                try:
-                    os.rename(src, dst)
-                except:
-                    print("An exception occurred")
-                    pass
+    if isIncludeSubFolder.get() == 0:
+        print("Handle only root folder")
+        for filename in os.listdir(folder):
+            if filename.lower().endswith('.png'):
+                sourcePath = f"{folder}/{filename}"
+                print(sourcePath)
+                renameFile(sourcePath, cutToText.get())
+    else:
+        print("Including sub folder")
+        for path, subdirs, files in os.walk(folder):
+            for filename in files:
+                if filename.lower().endswith('.png'):
+                    sourcePath = f"{path}/{filename}".replace("\\", "/")
+                    print(sourcePath)
+                    renameFile(sourcePath, cutToText.get())
+
     labelSuccess.configure(text="Successfully renamed all image files!")
     return
 
 
+def processImages():
+    threading.Thread(target=startRename).start()
+    return
+
+
 window = Tk()
-window.title("Rename all image files in a specific folder")
-window.geometry("400x100")
+window.title("Rename images v1.2")
+window.geometry("400x200")
 # Add a intro label
 labelIntro = Label(window, text="Select the folder:")
 labelIntro.grid(column=0, row=0)
@@ -56,11 +85,15 @@ labelCutToText.grid(column=0, row=2)
 
 cutToText = Entry(window)
 cutToText.grid(column=1, row=2)
+# including Sub-Folder
+isIncludeSubFolder = IntVar()
+cbSubFolder = Checkbutton(window, text="Including SubFolder", variable=isIncludeSubFolder)
+cbSubFolder.grid(column=0, row=3)
 # Add a rename button
-btnRename = Button(window, text="Rename all files", command=handleRenameAllFiles)
-btnRename.grid(column=0, row=3)
+btnRename = Button(window, text="Rename all files", command=processImages)
+btnRename.grid(column=0, row=4)
 # Add label successfully
-labelSuccess = Label(window, text="", fg="green", font=("Arial", 10))
-labelSuccess.grid(column=0, row=4)
+labelSuccess = Label(window, text="")
+labelSuccess.grid(column=0, row=5)
 
 window.mainloop()
