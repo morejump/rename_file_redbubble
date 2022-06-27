@@ -42,7 +42,7 @@ def enhanceImage(filePath):
 
 def enhanceImages():
     features = []
-    executor = ThreadPoolExecutor(30)
+    executor = ThreadPoolExecutor(5)
     folder = labelSelectedPath.cget("text")
     if isIncludeSubFolder.get() == 0:
         print("Handle only root folder")
@@ -72,7 +72,7 @@ def onClickBypass():
 
 
 window = Tk()
-window.title("Redbubble Bypasser - v1.3")
+window.title("Redbubble Bypasser - v1.4")
 window.geometry("400x130")
 # Add a intro label
 labelIntro = Label(window, text="Select the folder:")
