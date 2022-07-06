@@ -21,7 +21,7 @@ def enhanceImage(filePath):
         #  Enhance color
         image = Image.open(filePath)
         coloredImage = ImageEnhance.Color(image)
-        coloredImage.enhance(2).save(filePath)
+        coloredImage.enhance(1.2).save(filePath)
         image.close()
         # Enhance Sharpness
         # image = Image.open(filePath)
