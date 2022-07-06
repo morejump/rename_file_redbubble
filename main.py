@@ -72,7 +72,7 @@ def onClickBypass():
 
 
 window = Tk()
-window.title("Redbubble Bypasser - v1.4")
+window.title("Redbubble Bypasser - v1.5")
 window.geometry("400x130")
 # Add a intro label
 labelIntro = Label(window, text="Select the folder:")
