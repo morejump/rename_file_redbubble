@@ -4,97 +4,113 @@ from concurrent.futures import ThreadPoolExecutor, wait
 from tkinter import *
 from tkinter import filedialog
 
-from PIL import Image, ImageEnhance
+from PIL import Image
 
 
-def handleSelectFolder():
-    labelSuccess.configure(text="")
+def handleSelectOriginalFolder():
+    processLabel.configure(text="")
     root = filedialog.askdirectory()
-    labelSelectedPath.configure(text=root)
+    originalEntry.delete(0, END)
+    originalEntry.insert(0, root)
     return
 
 
-def enhanceImage(filePath):
-    try:
-        print(f"Handling {filePath}...")
-        # filePath = f"{folder}/{filename}"
-        #  Enhance color
-        image = Image.open(filePath)
-        coloredImage = ImageEnhance.Color(image)
-        coloredImage.enhance(1.2).save(filePath)
-        image.close()
-        # Enhance Sharpness
-        # image = Image.open(filePath)
-        # coloredImage = ImageEnhance.Sharpness(image)
-        # coloredImage.enhance(2).save(filePath)
-        # image.close()
-        # Enhance Brightness
-        # image = Image.open(filePath)
-        # coloredImage = ImageEnhance.Brightness(image)
-        # coloredImage.enhance(1.1).save(filePath)
-        # image.close()
-
-        print(f"Complete handling {filePath}!")
-    except Exception as ex:
-        print(f"Ignoring handle {filePath} cause by an exception: {ex}")
+def handleSelectResizeFolder():
+    processLabel.configure(text="")
+    root = filedialog.askdirectory()
+    resizeEntry.delete(0, END)
+    resizeEntry.insert(0, root)
     return
 
 
-def enhanceImages():
+def resizeBaseWith(image, filename):
+    print(f"Resizing {filename}")
+    basewidth = MAX_WITH
+    wpercent = (basewidth / float(image.size[0]))
+    hsize = min(int((float(image.size[1]) * float(wpercent))), MAX_HEIGHT)
+    image = image.resize((basewidth, hsize), Image.ANTIALIAS)
+    backgroundTrans = Image.open("true_size_transparent.png")
+    xBasis = int((backgroundTrans.size[0] - image.size[0]) / 2)
+    yBasis = int((backgroundTrans.size[1] - image.size[1]) / 2)
+    backgroundTrans.paste(image, (xBasis, yBasis))
+    resizeFolder = resizeEntry.get()
+    backgroundTrans.save(f"{resizeFolder}/{filename}")
+    print(f"Complete resize {filename}")
+    return
+
+
+def resizeBaseHeight(image, filename):
+    print(f"Resizing {filename}")
+    baseheight = MAX_HEIGHT
+    hpercent = (baseheight / float(image.size[1]))
+    wsize = min(int((float(image.size[0]) * float(hpercent))), MAX_WITH)
+    image = image.resize((wsize, baseheight), Image.ANTIALIAS)
+    backgroundTrans = Image.open("true_size_transparent.png")
+    xBasis = int((backgroundTrans.size[0] - image.size[0]) / 2)
+    yBasis = int((backgroundTrans.size[1] - image.size[1]) / 2)
+    backgroundTrans.paste(image, (xBasis, yBasis))
+    resizeFolder = resizeEntry.get()
+    backgroundTrans.save(f"{resizeFolder}/{filename}")
+    print(f"Complete resize {filename}")
+    return
+
+
+def onStart():
+    threading.Thread(target=resizeImages).start()
+    return
+
+
+def resizeImages():
+    processLabel.configure(text="Processing")
     features = []
-    executor = ThreadPoolExecutor(5)
-    folder = labelSelectedPath.cget("text")
-    if isIncludeSubFolder.get() == 0:
-        print("Handle only root folder")
-        for filename in os.listdir(folder):
-            if filename.lower().endswith('.png'):
-                filePath = f"{folder}/{filename}"
-                feature = executor.submit(enhanceImage, filePath)
-                features.append(feature)
-    else:
-        print("Including sub folder")
-        for path, subdirs, files in os.walk(folder):
-            for name in files:
-                if name.lower().endswith('.png'):
-                    filePath = f"{path}/{name}".replace("\\", "/")
-                    feature = executor.submit(enhanceImage, filePath)
-                    features.append(feature)
-    imageNumbers = len(features)
+    executor = ThreadPoolExecutor(10)
+    folder = originalEntry.get()
+    for filename in os.listdir(folder):
+        filepath = f"{folder}/{filename}"
+        feature = executor.submit(resizeImage, filepath, filename)
+        features.append(feature)
     wait(features)
-    labelSuccess.configure(text=f"Bypass {imageNumbers} images successfully")
-    print("ALL IMAGES IS HANDLED!!!")
+    processLabel.configure(text="All images were resized completely")
+    print("ALL DONE")
     return
 
 
-def onClickBypass():
-    labelSuccess.configure(text=f"Processing...")
-    threading.Thread(target=enhanceImages).start()
+def resizeImage(filePath, filename):
+    print(f"starting crop {filename}")
+    originalImage = Image.open(filePath)
+    cropImage = originalImage.crop(originalImage.getbbox())
+    if cropImage.size[0] >= cropImage.size[1]:
+        resizeBaseWith(cropImage, filename)
+    else:
+        resizeBaseHeight(cropImage, filename)
+    return
 
 
-window = Tk()
-window.title("Redbubble Bypasser - v1.4")
-window.geometry("400x130")
-# Add a intro label
-labelIntro = Label(window, text="Select the folder:")
-labelIntro.grid(column=0, row=0)
-# Add button select a folder
-btnSelectFolder = Button(window, text="Browse...", command=handleSelectFolder)
-btnSelectFolder.grid(column=1, row=0)
-# Add a path label
-labelPath = Label(window, text="Path:", anchor="w")
-labelPath.grid(column=0, row=1)
-# Add a selected path label
-labelSelectedPath = Label(window, text="N/A", anchor="w")
-labelSelectedPath.grid(column=1, row=1)
-# including sub-folder
-isIncludeSubFolder = IntVar()
-cbSubFolder = Checkbutton(window, text="Including SubFolder", variable=isIncludeSubFolder)
-cbSubFolder.grid(column=0, row=2)
-# Add a rename button
-btnBypass = Button(window, text="Bypass", command=onClickBypass)
-btnBypass.grid(column=0, row=3)
-# Add label successfully
-labelSuccess = Label(window, text="", font=("Arial", 10))
-labelSuccess.grid(column=0, row=4)
+if __name__ == '__main__':
+    MAX_WITH = 4500
+    MAX_HEIGHT = 5400
+    window = Tk()
+    window.title("Redbubble Standardizer v1.1")
+    window.geometry("800x200")
+    # an original section
+    originalLabel = Label(window, text="Original folder")
+    originalLabel.grid(column=0, row=0, sticky=W)
+    originalEntry = Entry(window, width=80)
+    originalEntry.grid(column=1, row=0)
+    btnSelectOriginal = Button(window, text="Browse...", command=handleSelectOriginalFolder)
+    btnSelectOriginal.grid(column=2, row=0)
+    # a resize section
+    resizeLabel = Label(window, text="Resize folder")
+    resizeLabel.grid(column=0, row=1, sticky=W)
+    resizeEntry = Entry(window, width=80)
+    resizeEntry.grid(column=1, row=1)
+    btnSelectResize = Button(window, text="Browse...", command=handleSelectResizeFolder)
+    btnSelectResize.grid(column=2, row=1)
+    # process section
+    btnProcess = Button(window, text="Start", width=10, command=onStart)
+    btnProcess.grid(column=0, row=2, sticky=W)
+    # process section
+    processLabel = Label(window, text="")
+    processLabel.grid(column=0, row=3, sticky=W)
 
-window.mainloop()
+    window.mainloop()
