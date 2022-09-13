@@ -50,7 +50,7 @@
      <string>images/folder</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnDevide">
+   <widget class="QPushButton" name="btnDivide">
     <property name="geometry">
      <rect>
       <x>10</x>

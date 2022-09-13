@@ -54,10 +54,26 @@ def divideFolderImages():
     return
 
 
+def undivideFolderImages():
+    mainFolder = mainWindow.txtFolderPath.text()
+    for path, subdirs, files in os.walk(mainFolder):
+        for name in files:
+            filePath = os.path.join(path, name)
+            shutil.move(filePath, mainFolder)
+
+    folders = list(os.walk(mainFolder))[1:]
+    for folder in folders:
+        if not folder[2]:
+            os.rmdir(folder[0])
+    mainWindow.lblMessage.setText("Successfully undivided images")
+    return
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
     mainWindow.setWindowTitle("Divide Folder v1.1")
-    mainWindow.btnDevide.clicked.connect(divideFolderImages)
+    mainWindow.btnDivide.clicked.connect(divideFolderImages)
+    mainWindow.btnUndivide.clicked.connect(undivideFolderImages)
     mainWindow.show()
     app.exec_()
