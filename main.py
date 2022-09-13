@@ -1,23 +1,39 @@
 import os
+import sys
 from tkinter import *
 from tkinter import filedialog
 from os.path import isfile, join
 import shutil
+from PyQt5 import QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QFileDialog, QSystemTrayIcon
+import layout
 
 
-def handleSelectFolder():
-    labelSuccess.configure(text="")
-    path = filedialog.askdirectory()
-    labelSelectedPath.configure(text=path)
-    return
+class MainWindow(QMainWindow, layout.Ui_MainWindow):
+
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.setWindowIcon(QtGui.QIcon('icon_app.ico'))
+        self.setupUi(self)
+        self.btnBrowser.clicked.connect(self.openImagesFolder)
+        return
+
+    def openImagesFolder(self):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.Directory)
+        if dlg.exec_():
+            folderNames = dlg.selectedFiles()
+            self.txtFolderPath.setText(folderNames[0])
+            self.lblMessage.setText("")
+        return
 
 
 def divideFolderImages():
     count = 0
-    folder = labelSelectedPath.cget("text")
+    folder = mainWindow.txtFolderPath.text()
     onlyfiles = [file for file in os.listdir(folder) if isfile(join(folder, file))]
     print(onlyfiles)
-    _numberImage = int(numberImages.get())
+    _numberImage = int(mainWindow.edtNumberImages.text())
     while len(onlyfiles) != 0:
         count += 1
         numberAddImage = 0
@@ -34,35 +50,14 @@ def divideFolderImages():
         for index in range(numberAddImage):
             shutil.move(f"{folder}/{onlyfiles[index]}", f"{path}/{onlyfiles[index]}")
         onlyfiles = [file for file in os.listdir(folder) if isfile(join(folder, file))]
-    labelSuccess.configure(text="Successfully divided images")
+    mainWindow.lblMessage.setText("Successfully divided images")
     return
 
 
-window = Tk()
-window.title("Divide images into folders")
-window.geometry("400x100")
-# Add a intro label
-labelIntro = Label(window, text="Select the folder:")
-labelIntro.grid(column=0, row=0)
-# Add button select a folder
-btnSelectFolder = Button(window, text="Browse...", command=handleSelectFolder)
-btnSelectFolder.grid(column=1, row=0)
-# Add a path label
-labelPath = Label(window, text="Path:", anchor="w")
-labelPath.grid(column=0, row=1)
-# Add a selected path label
-labelSelectedPath = Label(window, text="N/A", anchor="w")
-labelSelectedPath.grid(column=1, row=1)
-# add textbox get number of image per folder
-labelNumberImages = Label(window, text="Entering number of image per folder:", anchor="w")
-labelNumberImages.grid(column=0, row=2)
-numberImages = Entry(window)
-numberImages.grid(column=1, row=2)
-# Add button divide images
-btnRename = Button(window, text="Divide", command=divideFolderImages)
-btnRename.grid(column=0, row=3)
-# Add label successfully
-labelSuccess = Label(window, text="", fg="green", font=("Arial", 10))
-labelSuccess.grid(column=0, row=4)
-
-window.mainloop()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    mainWindow = MainWindow()
+    mainWindow.setWindowTitle("Divide Folder v1.1")
+    mainWindow.btnDevide.clicked.connect(divideFolderImages)
+    mainWindow.show()
+    app.exec_()
