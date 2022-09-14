@@ -25,10 +25,14 @@ class MainWindow(QMainWindow, layout.Ui_MainWindow):
         dlg.setFileMode(QFileDialog.Directory)
         if dlg.exec_():
             folderNames = dlg.selectedFiles()
+            self.lblProcess.setText("")
             self.txtFolderPath.setText(folderNames[0])
         return
 
+
 def removeDuplicate():
+    mainWindow.lblProcess.setText("Processing")
+    count = 0
     folderPath = mainWindow.txtFolderPath.text()
     images = [file for file in os.listdir(folderPath) if isfile(join(folderPath, file))]
     for image in images:
@@ -37,7 +41,9 @@ def removeDuplicate():
         hasEndNumber = re.search(r"_\d$", fileName)
         hasCopyText = "- Copy" in image
         if hasEndNumber or hasCopyText:
+            count += 1
             os.remove(f"{folderPath}/{image}")
+    mainWindow.lblProcess.setText(f"Successfully removed {count} duplicate images")
     return
 
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>496</width>
-    <height>195</height>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,6 +64,19 @@
     </property>
     <property name="text">
      <string>Remove duplicate</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblProcess">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>291</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
