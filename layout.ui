@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>303</height>
+    <width>496</width>
+    <height>195</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,69 +27,7 @@
      <string>N/A</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="edtNumberImages">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>41</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblNumberImage">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>50</y>
-      <width>91</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>images/folder</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnDivide">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>80</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Divide</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnUndivide">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>80</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>UnDivide</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="lblMessage">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>291</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -115,13 +53,26 @@
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="btnRemoveDuplicate">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>121</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove duplicate</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>448</width>
+     <width>496</width>
      <height>21</height>
     </rect>
    </property>
