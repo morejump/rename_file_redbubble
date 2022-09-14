@@ -81,7 +81,7 @@ def processUndivideFolder():
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
-    mainWindow.setWindowTitle("Divide Folder v1.1")
+    mainWindow.setWindowTitle("Divide Folder v1.2")
     mainWindow.btnDivide.clicked.connect(processDivideFolder)
     mainWindow.btnUndivide.clicked.connect(processUndivideFolder)
     mainWindow.show()
