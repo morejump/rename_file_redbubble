@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 from tkinter import *
 from tkinter import filedialog
 from os.path import isfile, join
@@ -69,11 +70,19 @@ def undivideFolderImages():
     return
 
 
+def processDivideFolder():
+    threading.Thread(target=divideFolderImages).start()
+    return
+
+def processUndivideFolder():
+    threading.Thread(target=undivideFolderImages).start()
+    return
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
     mainWindow.setWindowTitle("Divide Folder v1.1")
-    mainWindow.btnDivide.clicked.connect(divideFolderImages)
-    mainWindow.btnUndivide.clicked.connect(undivideFolderImages)
+    mainWindow.btnDivide.clicked.connect(processDivideFolder)
+    mainWindow.btnUndivide.clicked.connect(processUndivideFolder)
     mainWindow.show()
     app.exec_()
