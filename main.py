@@ -183,6 +183,8 @@ if __name__ == '__main__':
     mainWindow.edtOriginalFolder.setText(db.get(ORIGINAL_FOLDER_PATH_KEY).decode("utf-8"))
     mainWindow.edtResizeFolder.setText(db.get(RESIZE_FOLDER_PATH_KEY).decode("utf-8"))
     mainWindow.edtParallelHandling.setText(db.get(PARALLEL_HANDLING_KEY).decode("utf-8"))
+    #
+    mainWindow.edtParallelHandling.setValidator(intValidator)
 
     # setup active key dialog
     activeKeyDialog = QtWidgets.QDialog()
