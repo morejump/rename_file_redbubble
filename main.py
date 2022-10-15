@@ -1,27 +1,18 @@
-import os
 import shutil
+import PyQt5
+from getmac import get_mac_address as gma
+from active_dialog import Ui_Dialog
+from PyQt5 import QtGui, QtWidgets
+import requests
+from config import DEPLOY_LINK
 import threading
-from concurrent.futures import ThreadPoolExecutor, wait
-from tkinter import *
-from tkinter import filedialog
-
+import layout
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QFileDialog, QSystemTrayIcon
 from PIL import Image
-
-
-def handleSelectOriginalFolder():
-    processLabel.configure(text="")
-    root = filedialog.askdirectory()
-    originalEntry.delete(0, END)
-    originalEntry.insert(0, root)
-    return
-
-
-def handleSelectResizeFolder():
-    processLabel.configure(text="")
-    root = filedialog.askdirectory()
-    resizeEntry.delete(0, END)
-    resizeEntry.insert(0, root)
-    return
+import sys
+import os
+import dbm
+import dbm.dumb
 
 
 def resizeBaseWith(image, filename):
@@ -106,37 +97,108 @@ def resizeImage(filePath, filename):
     return
 
 
-if __name__ == '__main__':
-    MAX_WITH = 4500
-    MAX_HEIGHT = 5400
-    window = Tk()
-    window.title("Redbubble Standardizer v1.2")
-    window.geometry("800x200")
-    # an original section
-    originalLabel = Label(window, text="Original folder")
-    originalLabel.grid(column=0, row=0, sticky=W)
-    originalEntry = Entry(window, width=80)
-    originalEntry.grid(column=1, row=0, sticky=W)
-    btnSelectOriginal = Button(window, text="Browse...", command=handleSelectOriginalFolder)
-    btnSelectOriginal.grid(column=2, row=0)
-    # a resize section
-    resizeLabel = Label(window, text="Resize folder")
-    resizeLabel.grid(column=0, row=1, sticky=W)
-    resizeEntry = Entry(window, width=80)
-    resizeEntry.grid(column=1, row=1, sticky=W)
-    btnSelectResize = Button(window, text="Browse...", command=handleSelectResizeFolder)
-    btnSelectResize.grid(column=2, row=1)
-    # thread
-    threadLabel = Label(window, text="Thread numbers")
-    threadLabel.grid(column=0, row=2, sticky=W)
-    threadEntry = Entry(window, width=10)
-    threadEntry.grid(column=1, row=2, sticky=W)
-    threadEntry.insert(0, "5")
-    # process section
-    btnProcess = Button(window, text="Start", width=10, command=onStart)
-    btnProcess.grid(column=0, row=3, sticky=W)
-    # process section
-    processLabel = Label(window, text="")
-    processLabel.grid(column=0, row=4, sticky=W)
+class MainWindow(QMainWindow, layout.Ui_MainWindow):
 
-    window.mainloop()
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.setWindowIcon(QtGui.QIcon('icon_app.ico'))
+        self.setupUi(self)
+        self.btnBrowserOriginal.clicked.connect(self.openOriginalFolder)
+
+    def openOriginalFolder(self):
+        folderPath = QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
+        if folderPath:
+            self.edtOriginalFolder.setText(folderPath[0])
+        return
+
+
+def handleActiveKey(key: str):
+    if checkActiveKey(key):
+        db[KEY_ACTIVE_KEY] = key
+        activeKeyDialog.hide()
+        mainWindow.show()
+    else:
+        activeKeyDialogUI.lblMessage.setText("ERROR: Check your key or internet connection")
+    return
+
+
+def checkActiveKey(key: str):
+    if key == "":
+        return False
+    try:
+        response = requests.get(DEPLOY_LINK)
+        if response.status_code == 200:
+            data = response.json()
+            keyCMSLink = data["link"]
+            print(keyCMSLink)
+            mac = gma()
+            print(mac)
+            payload = {'dataRequest': 'ResizeKey', 'activeKeyUser': key, 'macUser': mac}
+            response = requests.get(keyCMSLink, params=payload)
+            if response.status_code == 200:
+                data = response.json()
+                status = data["status"]
+                print(status)
+                if status == "OK":
+                    return True
+    except Exception as ex:
+        print(ex)
+    return False
+
+
+def savePreferences():
+    db[PARALLEL_HANDLING_KEY] = mainWindow.edtParallelHandling.text()
+    db[RESIZE_FOLDER_PATH_KEY] = mainWindow.edtResizeFolder.text()
+    db[ORIGINAL_FOLDER_PATH_KEY] = mainWindow.edtOriginalFolder.text()
+    db.close()
+    return
+
+
+if __name__ == '__main__':
+
+    db = dbm.open('mydb', 'c')
+    KEY_ACTIVE_KEY = "KEY_ACTIVE_KEY"
+    ORIGINAL_FOLDER_PATH_KEY = "ORIGINAL_FOLDER_PATH_KEY"
+    RESIZE_FOLDER_PATH_KEY = "RESIZE_FOLDER_PATH_KEY"
+    PARALLEL_HANDLING_KEY = "PARALLEL_HANDLING_KEY"
+
+    if db.get(KEY_ACTIVE_KEY) is None:
+        db[KEY_ACTIVE_KEY] = ""
+
+    if db.get(ORIGINAL_FOLDER_PATH_KEY) is None:
+        db[ORIGINAL_FOLDER_PATH_KEY] = ""
+
+    if db.get(RESIZE_FOLDER_PATH_KEY) is None:
+        db[RESIZE_FOLDER_PATH_KEY] = ""
+
+    if db.get(PARALLEL_HANDLING_KEY) is None:
+        db[PARALLEL_HANDLING_KEY] = "1"
+
+    app = QApplication(sys.argv)
+    app.aboutToQuit.connect(savePreferences)
+    mainWindow = MainWindow()
+    mainWindow.setWindowTitle("Redbubble resizer v1.0")
+    intValidator = PyQt5.QtGui.QIntValidator()
+    # update data from local database
+    mainWindow.edtOriginalFolder.setText(db.get(ORIGINAL_FOLDER_PATH_KEY).decode("utf-8"))
+    mainWindow.edtResizeFolder.setText(db.get(RESIZE_FOLDER_PATH_KEY).decode("utf-8"))
+    mainWindow.edtParallelHandling.setText(db.get(PARALLEL_HANDLING_KEY).decode("utf-8"))
+
+    # setup active key dialog
+    activeKeyDialog = QtWidgets.QDialog()
+    activeKeyDialog.setWindowTitle("Active Key")
+    activeKeyDialog.setWindowIcon(QtGui.QIcon('icon_app.ico'))
+    activeKeyDialogUI = Ui_Dialog()
+    activeKeyDialogUI.setupUi(activeKeyDialog)
+    activeKeyDialogUI.btnActive.clicked.connect(lambda: handleActiveKey(activeKeyDialogUI.edtActiveKey.text()))
+    # check active key
+    activeKey = db.get(KEY_ACTIVE_KEY).decode("utf-8")
+    print(f"active key: {activeKey}")
+    if activeKey == "":
+        activeKeyDialog.show()
+    else:
+        if checkActiveKey(activeKey):
+            mainWindow.show()
+        else:
+            activeKeyDialog.show()
+    app.exec_()
