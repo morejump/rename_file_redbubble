@@ -1,4 +1,5 @@
 import shutil
+import logging
 import PyQt5
 from getmac import get_mac_address as gma
 from active_dialog import Ui_Dialog
@@ -8,6 +9,7 @@ from config import DEPLOY_LINK
 import threading
 import layout
 from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QFileDialog, QSystemTrayIcon
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, QThread, QRunnable, QThreadPool
 from PIL import Image
 import sys
 import os
@@ -146,6 +148,41 @@ def checkActiveKey(key: str):
     return False
 
 
+class QTextEditLogger(logging.Handler):
+    def __init__(self):
+        super().__init__()
+
+    def emit(self, record):
+        msg = self.format(record)
+        logSignal.emitData(msg)
+        return
+
+
+class LogSignal(QObject):
+    signal = pyqtSignal(str)
+
+    def emitData(self, message):
+        self.signal.emit(message)
+
+
+def displayMessage(msg: str):
+    global displayMsgNumber
+    print(msg)
+    displayMsgNumber += 1
+    if "Successfully" in msg:
+        formatColor = '<span style="color:green;">{}</span>'
+        mainWindow.edtLogs.appendHtml(formatColor.format(msg))
+    else:
+        mainWindow.edtLogs.appendPlainText(msg)
+
+    mainWindow.edtLogs.appendPlainText("")
+    mainWindow.edtLogs.verticalScrollBar().setValue(mainWindow.edtLogs.verticalScrollBar().maximum())
+    if displayMsgNumber == 300:
+        mainWindow.edtLogs.clear()
+        displayMsgNumber = 0
+    return
+
+
 def savePreferences():
     db[PARALLEL_HANDLING_KEY] = mainWindow.edtParallelHandling.text()
     db[RESIZE_FOLDER_PATH_KEY] = mainWindow.edtResizeFolder.text()
@@ -157,6 +194,7 @@ def savePreferences():
 if __name__ == '__main__':
 
     db = dbm.open('mydb', 'c')
+    displayMsgNumber = 0
     KEY_ACTIVE_KEY = "KEY_ACTIVE_KEY"
     ORIGINAL_FOLDER_PATH_KEY = "ORIGINAL_FOLDER_PATH_KEY"
     RESIZE_FOLDER_PATH_KEY = "RESIZE_FOLDER_PATH_KEY"
@@ -179,6 +217,24 @@ if __name__ == '__main__':
     mainWindow = MainWindow()
     mainWindow.setWindowTitle("Redbubble resizer v1.0")
     intValidator = PyQt5.QtGui.QIntValidator()
+    # setup logs
+    logSignal = LogSignal()
+    logTextBox = QTextEditLogger()
+    logging.basicConfig(filename='logs.txt',
+                        filemode='a',
+                        format='%(asctime)s - %(module)s:%(lineno)s %(funcName)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M',
+                        level=logging.INFO)
+
+    formatter = logging.Formatter(fmt='%(asctime)s - %(module)s:%(lineno)s %(funcName)s - %(message)s',
+                                  datefmt='%Y-%m-%d %H:%M')
+
+    logTextBox.setFormatter(formatter)
+
+    logging.getLogger().addHandler(logTextBox)
+    logSignal.signal.connect(displayMessage)
+    logging.info("=========================================")
+    logging.info("NEW SESSION")
     # update data from local database
     mainWindow.edtOriginalFolder.setText(db.get(ORIGINAL_FOLDER_PATH_KEY).decode("utf-8"))
     mainWindow.edtResizeFolder.setText(db.get(RESIZE_FOLDER_PATH_KEY).decode("utf-8"))
