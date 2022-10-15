@@ -106,11 +106,26 @@ class MainWindow(QMainWindow, layout.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon('icon_app.ico'))
         self.setupUi(self)
         self.btnBrowserOriginal.clicked.connect(self.openOriginalFolder)
+        self.btnBrowserResize.clicked.connect(self.openResizeFolder)
 
     def openOriginalFolder(self):
-        folderPath = QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
-        if folderPath:
-            self.edtOriginalFolder.setText(folderPath[0])
+        try:
+            folderPath = QFileDialog.getExistingDirectory(None, 'Select a original folder:', 'C:\\', QFileDialog.ShowDirsOnly)
+            logging.info(folderPath)
+            if folderPath:
+                self.edtOriginalFolder.setText(folderPath)
+        except Exception as ex:
+            logging.info(ex)
+        return
+
+    def openResizeFolder(self):
+        try:
+            folderPath = QFileDialog.getExistingDirectory(None, 'Select a resize folder:', 'C:\\', QFileDialog.ShowDirsOnly)
+            logging.info(folderPath)
+            if folderPath:
+                self.edtResizeFolder.setText(folderPath)
+        except Exception as ex:
+            logging.info(ex)
         return
 
 
