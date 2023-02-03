@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\layout.ui'
+# Form implementation generated from reading ui file '.\resize.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,14 +14,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(709, 311)
+        MainWindow.resize(709, 388)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.btnStart = QtWidgets.QPushButton(self.centralwidget)
-        self.btnStart.setGeometry(QtCore.QRect(10, 120, 75, 23))
+        self.btnStart.setGeometry(QtCore.QRect(10, 140, 75, 23))
         self.btnStart.setObjectName("btnStart")
         self.edtOriginalFolder = QtWidgets.QLineEdit(self.centralwidget)
-        self.edtOriginalFolder.setGeometry(QtCore.QRect(100, 10, 511, 20))
+        self.edtOriginalFolder.setGeometry(QtCore.QRect(110, 10, 501, 20))
         self.edtOriginalFolder.setObjectName("edtOriginalFolder")
         self.lblOriginalFolder = QtWidgets.QLabel(self.centralwidget)
         self.lblOriginalFolder.setGeometry(QtCore.QRect(10, 10, 81, 16))
@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.btnBrowserOriginal.setGeometry(QtCore.QRect(620, 10, 75, 23))
         self.btnBrowserOriginal.setObjectName("btnBrowserOriginal")
         self.edtResizeFolder = QtWidgets.QLineEdit(self.centralwidget)
-        self.edtResizeFolder.setGeometry(QtCore.QRect(100, 40, 511, 20))
+        self.edtResizeFolder.setGeometry(QtCore.QRect(110, 40, 501, 20))
         self.edtResizeFolder.setObjectName("edtResizeFolder")
         self.btnBrowserResize = QtWidgets.QPushButton(self.centralwidget)
         self.btnBrowserResize.setGeometry(QtCore.QRect(620, 40, 75, 23))
@@ -39,14 +39,29 @@ class Ui_MainWindow(object):
         self.lblResizeFolder.setGeometry(QtCore.QRect(10, 40, 111, 16))
         self.lblResizeFolder.setObjectName("lblResizeFolder")
         self.edtLogs = QtWidgets.QPlainTextEdit(self.centralwidget)
-        self.edtLogs.setGeometry(QtCore.QRect(10, 150, 601, 101))
+        self.edtLogs.setGeometry(QtCore.QRect(10, 180, 601, 161))
         self.edtLogs.setObjectName("edtLogs")
         self.lblParallelHandling = QtWidgets.QLabel(self.centralwidget)
         self.lblParallelHandling.setGeometry(QtCore.QRect(10, 70, 81, 16))
         self.lblParallelHandling.setObjectName("lblParallelHandling")
         self.edtParallelHandling = QtWidgets.QLineEdit(self.centralwidget)
-        self.edtParallelHandling.setGeometry(QtCore.QRect(100, 70, 61, 20))
+        self.edtParallelHandling.setGeometry(QtCore.QRect(110, 70, 61, 20))
         self.edtParallelHandling.setObjectName("edtParallelHandling")
+        self.lblResize = QtWidgets.QLabel(self.centralwidget)
+        self.lblResize.setGeometry(QtCore.QRect(10, 100, 91, 16))
+        self.lblResize.setObjectName("lblResize")
+        self.edtWidth = QtWidgets.QLineEdit(self.centralwidget)
+        self.edtWidth.setGeometry(QtCore.QRect(150, 100, 61, 20))
+        self.edtWidth.setObjectName("edtWidth")
+        self.lblWidth = QtWidgets.QLabel(self.centralwidget)
+        self.lblWidth.setGeometry(QtCore.QRect(110, 100, 51, 16))
+        self.lblWidth.setObjectName("lblWidth")
+        self.lblHeight = QtWidgets.QLabel(self.centralwidget)
+        self.lblHeight.setGeometry(QtCore.QRect(230, 100, 51, 16))
+        self.lblHeight.setObjectName("lblHeight")
+        self.edtHeight = QtWidgets.QLineEdit(self.centralwidget)
+        self.edtHeight.setGeometry(QtCore.QRect(270, 100, 61, 20))
+        self.edtHeight.setObjectName("edtHeight")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 709, 21))
@@ -68,6 +83,11 @@ class Ui_MainWindow(object):
         self.btnBrowserResize.setText(_translate("MainWindow", "Browser..."))
         self.lblResizeFolder.setText(_translate("MainWindow", "Resize folder:"))
         self.lblParallelHandling.setText(_translate("MainWindow", "Parallel handling:"))
+        self.lblResize.setText(_translate("MainWindow", "Resize image size:"))
+        self.edtWidth.setPlaceholderText(_translate("MainWindow", "4500"))
+        self.lblWidth.setText(_translate("MainWindow", "Width:"))
+        self.lblHeight.setText(_translate("MainWindow", "Height:"))
+        self.edtHeight.setPlaceholderText(_translate("MainWindow", "5400"))
 
 
 if __name__ == "__main__":

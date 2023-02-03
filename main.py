@@ -7,7 +7,7 @@ from PyQt5 import QtGui, QtWidgets
 import requests
 from config import DEPLOY_LINK
 import threading
-import layout
+import resize
 from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QFileDialog, QSystemTrayIcon
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject, QThread, QRunnable, QThreadPool
 from PIL import Image
@@ -22,7 +22,7 @@ def resizeBaseWith(image, filename):
     wpercent = (basewidth / float(image.size[0]))
     hsize = min(int((float(image.size[1]) * float(wpercent))), MAX_HEIGHT)
     image = image.resize((basewidth, hsize), Image.ANTIALIAS)
-    backgroundTrans = Image.open("true_size_transparent.png")
+    backgroundTrans = Image.new("RGBA", (MAX_WITH, MAX_HEIGHT), (255, 255, 255, 0))
     xBasis = int((backgroundTrans.size[0] - image.size[0]) / 2)
     yBasis = int((backgroundTrans.size[1] - image.size[1]) / 2)
     backgroundTrans.paste(image, (xBasis, yBasis))
@@ -36,7 +36,7 @@ def resizeBaseHeight(image, filename):
     hpercent = (baseheight / float(image.size[1]))
     wsize = min(int((float(image.size[0]) * float(hpercent))), MAX_WITH)
     image = image.resize((wsize, baseheight), Image.ANTIALIAS)
-    backgroundTrans = Image.open("true_size_transparent.png")
+    backgroundTrans = Image.new("RGBA", (MAX_WITH, MAX_HEIGHT), (255, 255, 255, 0))
     xBasis = int((backgroundTrans.size[0] - image.size[0]) / 2)
     yBasis = int((backgroundTrans.size[1] - image.size[1]) / 2)
     backgroundTrans.paste(image, (xBasis, yBasis))
@@ -65,6 +65,16 @@ def resizeImages():
     global threadPool
     threadPool.setMaxThreadCount(int(mainWindow.edtParallelHandling.text()))
     logging.info("Starting resize images")
+    global MAX_WITH
+    global MAX_HEIGHT
+    if mainWindow.edtWidth.text() != "":
+        MAX_WITH = int(mainWindow.edtWidth.text())
+    if mainWindow.edtHeight.text() != "":
+        MAX_HEIGHT = int(mainWindow.edtHeight.text())
+
+    if MAX_WITH == 0 or MAX_HEIGHT == 0:
+        logging.info(f"Please, Enter your expect size, Current expect size W:H = {MAX_WITH}:{MAX_HEIGHT}")
+        return
 
     folder = mainWindow.edtOriginalFolder.text()
     for filename in os.listdir(folder):
@@ -117,7 +127,7 @@ class ResizeImageTask(QRunnable):
         resizeImage(self.filePath, self.filename)
 
 
-class MainWindow(QMainWindow, layout.Ui_MainWindow):
+class MainWindow(QMainWindow, resize.Ui_MainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -229,8 +239,8 @@ def savePreferences():
 if __name__ == '__main__':
 
     isStart = False
-    MAX_WITH = 4500
-    MAX_HEIGHT = 5400
+    MAX_WITH = 0
+    MAX_HEIGHT = 0
 
     db = dbm.open('mydb', 'c')
 
@@ -255,7 +265,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.aboutToQuit.connect(savePreferences)
     mainWindow = MainWindow()
-    mainWindow.setWindowTitle("Redbubble resizer v1.0")
+    mainWindow.setWindowTitle("Image resizer v1.0 - Copyright © 2023 By MMO.FARM")
     intValidator = PyQt5.QtGui.QIntValidator()
     #  threadpool
     threadPool = QThreadPool.globalInstance()
@@ -284,6 +294,8 @@ if __name__ == '__main__':
     mainWindow.edtParallelHandling.setText(db.get(PARALLEL_HANDLING_KEY).decode("utf-8"))
     #
     mainWindow.edtParallelHandling.setValidator(intValidator)
+    mainWindow.edtWidth.setValidator(intValidator)
+    mainWindow.edtHeight.setValidator(intValidator)
     mainWindow.btnStart.clicked.connect(onStart)
 
     # setup active key dialog
